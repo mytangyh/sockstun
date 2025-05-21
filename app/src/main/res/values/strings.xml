@@ -15,4 +15,5 @@
 	<string name="save">Save</string>
 	<string name="control_enable">Enable</string>
 	<string name="control_disable">Disable</string>
+	<string name="floating_button">Add Floating Button</string>
 </resources>

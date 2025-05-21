@@ -9,16 +9,24 @@
 
 package hev.sockstun;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.Context;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 import android.net.VpnService;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class MainActivity extends Activity implements View.OnClickListener {
 	private Preferences prefs;
@@ -35,6 +43,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private Button button_apps;
 	private Button button_save;
 	private Button button_control;
+	private Button button_floating;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -56,12 +66,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		button_apps = (Button) findViewById(R.id.apps);
 		button_save = (Button) findViewById(R.id.save);
 		button_control = (Button) findViewById(R.id.control);
+		button_floating = (Button) findViewById(R.id.floating_button);
+
 
 		checkbox_udp_in_tcp.setOnClickListener(this);
 		checkbox_global.setOnClickListener(this);
 		button_apps.setOnClickListener(this);
 		button_save.setOnClickListener(this);
 		button_control.setOnClickListener(this);
+		button_floating.setOnClickListener(this);
 		updateUI();
 
 		/* Request VPN permission */
@@ -70,6 +83,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		  startActivityForResult(intent, 0);
 		else
 		  onActivityResult(0, RESULT_OK, null);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
+					!= PackageManager.PERMISSION_GRANTED) {
+				ActivityCompat.requestPermissions(this,
+						new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1002);
+			}
+		}
+
 	}
 
 	@Override
@@ -101,7 +123,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			  startService(intent.setAction(TProxyService.ACTION_DISCONNECT));
 			else
 			  startService(intent.setAction(TProxyService.ACTION_CONNECT));
-		}
+		} else if (view == button_floating) {
+            if (!Settings.canDrawOverlays(this)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, 1001);
+            } else {
+                startService(new Intent(this, FloatingService.class));
+            }
+
+        }
 	}
 
 	private void updateUI() {
