@@ -37,7 +37,7 @@ public class Preferences
 	}
 
 	public String getSocksAddress() {
-		return prefs.getString(SOCKS_ADDR, "127.0.0.1");
+		return prefs.getString(SOCKS_ADDR, "10.0.37.120");
 	}
 
 	public void setSocksAddress(String addr) {
@@ -77,7 +77,7 @@ public class Preferences
 	}
 
 	public String getDnsIpv4() {
-		return prefs.getString(DNS_IPV4, "8.8.8.8");
+		return prefs.getString(DNS_IPV4, "10.0.37.120");
 	}
 
 	public void setDnsIpv4(String addr) {
@@ -127,7 +127,7 @@ public class Preferences
 	}
 
 	public boolean getGlobal() {
-		return prefs.getBoolean(GLOBAL, false);
+		return prefs.getBoolean(GLOBAL, true);
 	}
 
 	public void setGlobal(boolean enable) {

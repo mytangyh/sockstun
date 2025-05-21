@@ -33,6 +33,8 @@ public class TProxyService extends VpnService {
 	private static native void TProxyStopService();
 	private static native long[] TProxyGetStats();
 
+	private Preferences prefs;
+
 	public static final String ACTION_CONNECT = "hev.sockstun.CONNECT";
 	public static final String ACTION_DISCONNECT = "hev.sockstun.DISCONNECT";
 
@@ -43,13 +45,24 @@ public class TProxyService extends VpnService {
 	private ParcelFileDescriptor tunFd = null;
 
 	@Override
+	public void onCreate() {
+		super.onCreate();
+		prefs = new Preferences(this);
+	}
+
+	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (intent != null && ACTION_DISCONNECT.equals(intent.getAction())) {
-			stopService();
-			return START_NOT_STICKY;
+		if (intent != null) {
+			String action = intent.getAction();
+			if (ACTION_DISCONNECT.equals(action)) {
+				stopService();
+				return START_NOT_STICKY;
+			} else if (ACTION_CONNECT.equals(action)) {
+				startService();
+				return START_STICKY;
+			}
 		}
-		startService();
-		return START_STICKY;
+		return START_NOT_STICKY;
 	}
 
 	@Override
@@ -66,8 +79,6 @@ public class TProxyService extends VpnService {
 	public void startService() {
 		if (tunFd != null)
 		  return;
-
-		Preferences prefs = new Preferences(this);
 
 		/* VPN */
 		String session = new String();
@@ -161,9 +172,12 @@ public class TProxyService extends VpnService {
 	public void stopService() {
 		if (tunFd == null)
 		  return;
+		prefs.setEnable(false);
 
-		stopForeground(true);
-
+//		stopForeground(false);
+		String channelName = "socks5";
+		initNotificationChannel(channelName);
+		createNotification(channelName);
 		/* TProxy */
 		TProxyStopService();
 
@@ -174,17 +188,33 @@ public class TProxyService extends VpnService {
 		}
 		tunFd = null;
 
-		System.exit(0);
+//		System.exit(0);
 	}
 
 	private void createNotification(String channelName) {
-		Intent i = new Intent(this, TProxyService.class);
-		PendingIntent pi = PendingIntent.getService(this, 0, i, PendingIntent.FLAG_IMMUTABLE);
+		Preferences prefs = new Preferences(this);
+		boolean isEnable = prefs.getEnable();
+
+		// 通知主点击行为（可以保留原样）
+		Intent mainIntent = new Intent(this, TProxyService.class);
+		PendingIntent mainPi = PendingIntent.getService(this, 0, mainIntent, PendingIntent.FLAG_IMMUTABLE);
+
+		// 构建“切换状态”的按钮
+		Intent toggleIntent = new Intent(this, TProxyService.class);
+		toggleIntent.setAction(isEnable ? ACTION_DISCONNECT : ACTION_CONNECT);
+		PendingIntent togglePi = PendingIntent.getService(this, 1, toggleIntent, PendingIntent.FLAG_IMMUTABLE);
+
+		String buttonText = isEnable ? "断开连接" : "开启连接";
+		int icon = isEnable ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play;
+
 		NotificationCompat.Builder notification = new NotificationCompat.Builder(this, channelName);
 		Notification notify = notification
 				.setContentTitle(getString(R.string.app_name))
+				.setContentText(isEnable ? "VPN 已连接 长按断开连接" : "VPN 未连接 长按开启连接")
 				.setSmallIcon(android.R.drawable.sym_def_app_icon)
-				.setContentIntent(pi)
+				.setContentIntent(mainPi)
+				.addAction(icon, buttonText, togglePi)
+				.setOngoing(true)
 				.build();
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
 			startForeground(1, notify);
@@ -192,6 +222,7 @@ public class TProxyService extends VpnService {
 			startForeground(1, notify, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
 		}
 	}
+
 
 	// create NotificationChannel
 	private void initNotificationChannel(String channelName) {
