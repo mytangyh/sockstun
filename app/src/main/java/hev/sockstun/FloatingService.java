@@ -95,7 +95,7 @@ public class FloatingService extends Service {
         updateButtonUI();
     }
 
-    private void updateButtonUI() {
+    public void updateButtonUI() {
         Preferences prefs = new Preferences(this);
         boolean isEnable = prefs.getEnable();
         if (buttonView != null) {
