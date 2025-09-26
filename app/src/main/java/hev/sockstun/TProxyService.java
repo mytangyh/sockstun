@@ -91,7 +91,7 @@ public class TProxyService extends VpnService {
 			String dns = prefs.getDnsIpv4();
 			builder.addAddress(addr, prefix);
 			builder.addRoute("0.0.0.0", 0);
-			if (!dns.isEmpty())
+			if (!prefs.getRemoteDns() && !dns.isEmpty())
 			  builder.addDnsServer(dns);
 			session += "IPv4";
 		}
@@ -101,11 +101,14 @@ public class TProxyService extends VpnService {
 			String dns = prefs.getDnsIpv6();
 			builder.addAddress(addr, prefix);
 			builder.addRoute("::", 0);
-			if (!dns.isEmpty())
+			if (!prefs.getRemoteDns() && !dns.isEmpty())
 			  builder.addDnsServer(dns);
 			if (!session.isEmpty())
 			  session += " + ";
 			session += "IPv6";
+		}
+		if (prefs.getRemoteDns()) {
+			builder.addDnsServer(prefs.getMappedDns());
 		}
 		boolean disallowSelf = true;
 		if (prefs.getGlobal()) {
@@ -154,6 +157,15 @@ public class TProxyService extends VpnService {
 				!prefs.getSocksPassword().isEmpty()) {
 				tproxy_conf += "  username: '" + prefs.getSocksUsername() + "'\n";
 				tproxy_conf += "  password: '" + prefs.getSocksPassword() + "'\n";
+			}
+
+			if (prefs.getRemoteDns()) {
+				tproxy_conf += "mapdns:\n" +
+					"  address: " + prefs.getMappedDns() + "\n" +
+					"  port: 53\n" +
+					"  network: 240.0.0.0\n" +
+					"  netmask: 240.0.0.0\n" +
+					"  cache-size: 10000\n";
 			}
 
 			fos.write(tproxy_conf.getBytes());

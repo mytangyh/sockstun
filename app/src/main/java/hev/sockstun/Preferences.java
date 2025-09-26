@@ -27,6 +27,7 @@ public class Preferences
 	public static final String IPV6 = "Ipv6";
 	public static final String GLOBAL = "Global";
 	public static final String UDP_IN_TCP = "UdpInTcp";
+	public static final String REMOTE_DNS = "RemoteDNS";
 	public static final String APPS = "Apps";
 	public static final String ENABLE = "Enable";
 
@@ -96,13 +97,27 @@ public class Preferences
 		editor.commit();
 	}
 
+	public String getMappedDns() {
+		return "198.18.0.2";
+	}
+
 	public boolean getUdpInTcp() {
-		return prefs.getBoolean(UDP_IN_TCP, true);
+		return prefs.getBoolean(UDP_IN_TCP, false);
 	}
 
 	public void setUdpInTcp(boolean enable) {
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putBoolean(UDP_IN_TCP, enable);
+		editor.commit();
+	}
+
+	public boolean getRemoteDns() {
+		return prefs.getBoolean(REMOTE_DNS, true);
+	}
+
+	public void setRemoteDns(boolean enable) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(REMOTE_DNS, enable);
 		editor.commit();
 	}
 
