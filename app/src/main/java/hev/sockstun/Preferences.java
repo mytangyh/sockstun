@@ -38,7 +38,7 @@ public class Preferences
 	}
 
 	public String getSocksAddress() {
-		return prefs.getString(SOCKS_ADDR, "10.0.37.120");
+		return prefs.getString(SOCKS_ADDR, "10.0.38.215");
 	}
 
 	public void setSocksAddress(String addr) {
@@ -48,7 +48,7 @@ public class Preferences
 	}
 
 	public int getSocksPort() {
-		return prefs.getInt(SOCKS_PORT, 1080);
+		return prefs.getInt(SOCKS_PORT, 8001);
 	}
 
 	public void setSocksPort(int port) {
@@ -58,7 +58,7 @@ public class Preferences
 	}
 
 	public String getSocksUsername() {
-		return prefs.getString(SOCKS_USER, "");
+		return prefs.getString(SOCKS_USER, "b2bmobile");
 	}
 
 	public void setSocksUsername(String user) {
@@ -68,7 +68,7 @@ public class Preferences
 	}
 
 	public String getSocksPassword() {
-		return prefs.getString(SOCKS_PASS, "");
+		return prefs.getString(SOCKS_PASS, "123456");
 	}
 
 	public void setSocksPassword(String pass) {
@@ -78,7 +78,7 @@ public class Preferences
 	}
 
 	public String getDnsIpv4() {
-		return prefs.getString(DNS_IPV4, "10.0.37.120");
+		return prefs.getString(DNS_IPV4, "10.0.38.215");
 	}
 
 	public void setDnsIpv4(String addr) {
